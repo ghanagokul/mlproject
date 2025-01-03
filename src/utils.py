@@ -1,10 +1,8 @@
 import os
 import sys
-import dill  # Optional, can replace pickle for complex objects
-import pickle
+import dill  # Using dill for both saving and loading complex objects
 from sklearn.metrics import r2_score
 from sklearn.model_selection import GridSearchCV
-
 from src.exception import CustomException
 
 def save_object(file_path, obj):
@@ -53,10 +51,14 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, param):
 
 def load_object(file_path):
     try:
+        print(f"Attempting to load object from: {file_path}")  # Debug info
         if os.path.exists(file_path):
+            if os.path.getsize(file_path) == 0:
+                raise EOFError(f"The file {file_path} is empty.")
             with open(file_path, "rb") as file_obj:
-                return pickle.load(file_obj)
+                return dill.load(file_obj)
         else:
             raise FileNotFoundError(f"The file {file_path} does not exist.")
     except Exception as e:
         raise CustomException(e, sys)
+
